@@ -1,21 +1,17 @@
 import { useEffect, useState } from "react";
+
+import AddPersonForm from "./components/AddPersonForm";
+import AddParentChildForm from "./components/AddParentChildForm";
 import FamilyGraph from "./components/FamilyGraph";
 
-import { getPeople, createPerson } from "./api/people";
-
-import { getParentChildLinks, createParentChildLink } from "./api/parentChild";
+import { getPeople } from "./api/people";
+import { getParentChildLinks } from "./api/parentChild";
 
 import type { Person, ParentChild } from "./types/family";
 
 function App() {
   const [people, setPeople] = useState<Person[]>([]);
   const [parentChildLinks, setParentChildLinks] = useState<ParentChild[]>([]);
-
-  const [fullName, setFullName] = useState("");
-  const [chineseName, setChineseName] = useState("");
-
-  const [parentId, setParentId] = useState("");
-  const [childId, setChildId] = useState("");
 
   async function refreshPeople() {
     const data = await getPeople();
@@ -27,34 +23,6 @@ function App() {
     setParentChildLinks(data);
   }
 
-  async function handleCreatePerson(e: React.FormEvent) {
-    e.preventDefault();
-
-    await createPerson({
-      full_name: fullName,
-      chinese_name: chineseName || null,
-    });
-
-    setFullName("");
-    setChineseName("");
-
-    await refreshPeople();
-  }
-
-  async function handleCreateParentChildLink(e: React.FormEvent) {
-    e.preventDefault();
-
-    await createParentChildLink({
-      parent_id: Number(parentId),
-      child_id: Number(childId),
-    });
-
-    setParentId("");
-    setChildId("");
-
-    await refreshParentChildLinks();
-  }
-
   useEffect(() => {
     refreshPeople();
     refreshParentChildLinks();
@@ -64,60 +32,12 @@ function App() {
     <main style={{ padding: "2rem" }}>
       <h1>Family Tree App</h1>
 
-      <form onSubmit={handleCreatePerson}>
-        <h2>Add Person</h2>
+      <AddPersonForm onPersonCreated={refreshPeople} />
 
-        <input
-          placeholder="Full name"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          required
-        />
-
-        <input
-          placeholder="Chinese name"
-          value={chineseName}
-          onChange={(e) => setChineseName(e.target.value)}
-        />
-
-        <button type="submit">Add Person</button>
-      </form>
-
-      <form onSubmit={handleCreateParentChildLink}>
-        <h2>Add Parent-Child Relationship</h2>
-
-        <select
-          value={parentId}
-          onChange={(e) => setParentId(e.target.value)}
-          required
-        >
-          <option value="">Select parent</option>
-
-          {people.map((person) => (
-            <option key={person.id} value={person.id}>
-              {person.full_name}
-            </option>
-          ))}
-        </select>
-
-        <span> is parent of </span>
-
-        <select
-          value={childId}
-          onChange={(e) => setChildId(e.target.value)}
-          required
-        >
-          <option value="">Select child</option>
-
-          {people.map((person) => (
-            <option key={person.id} value={person.id}>
-              {person.full_name}
-            </option>
-          ))}
-        </select>
-
-        <button type="submit">Add Link</button>
-      </form>
+      <AddParentChildForm
+        people={people}
+        onRelationshipCreated={refreshParentChildLinks}
+      />
 
       <h2>Family Graph</h2>
 
