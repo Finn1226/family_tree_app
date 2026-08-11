@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import FamilyGraph from "./components/FamilyGraph";
 
-import { getPeople, createPerson, type Person } from "./api/people";
+import { getPeople, createPerson } from "./api/people";
 
-import {
-  getParentChildLinks,
-  createParentChildLink,
-  type ParentChild,
-} from "./api/parentChild";
+import { getParentChildLinks, createParentChildLink } from "./api/parentChild";
+
+import type { Person, ParentChild } from "./types/family";
 
 function App() {
   const [people, setPeople] = useState<Person[]>([]);
